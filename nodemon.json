@@ -1,0 +1,34 @@
+{
+  "watch": [
+    "**/*.js",
+    "**/*.json",
+    "swagger.yml",
+    ".env"
+  ],
+  "exec": "npm run babel-node"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

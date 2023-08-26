@@ -1,0 +1,552 @@
+openapi: "3.0.2"
+info:
+  title: STRIPE PAYMENT
+  version: "1.0.0"
+
+components:
+  # Authentication using bearer token
+  securitySchemes:
+    bearerAuth:
+      description: "#### Example: Bearer [TOKEN]"
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Register:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: rutvik
+        lastName:
+          type: string
+          example: makvana
+        email:
+          type: string
+          example: rutvik@mailinator.com
+        countryCode:
+          type: string
+          example: "+91"
+        phone:
+          type: string
+          example: 1234567890
+        password:
+          type: string
+          example: abcd@123
+        confirmPassword:
+          type: string
+          example: abcd@123
+      required:
+        - fullName
+        - email
+        - countryCode
+        - phone
+        - password
+        - confirmPassword
+
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: rutvik@mailinator.com
+        password:
+          type: string
+          example: abcd@123
+      required:
+        - email
+        - password
+
+  # Response message
+  responses:
+    Success:
+      description: |
+        - success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: success
+
+    UnprocessableEntity:
+      description: |
+        - Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: validation error
+
+    ConflictError:
+      description: |
+        - ConflictError
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: conflict error
+
+    BadRequestError:
+      description: |
+        - bad request error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: bad request error
+
+    UnauthorizedError:
+      description: |
+        - Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Unauthorized
+
+    NotFoundError:
+      description: |
+        - NotFoundError
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Not Found
+
+paths:
+  /auth/send-otp-email:
+    post:
+      summary: OTP send to the Email address
+      description: |
+        - OTP send email
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: rutvik@mailinator.com
+              required:
+                - email
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /auth/emailVerifyOTP:
+    post:
+      summary: Email OTP verification
+      description: |
+        - OTP verification
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: rutvik@mailinator.com
+                otp:
+                  type: integer
+                  example: 1234
+              required:
+                - email
+                - otp
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /auth/register:
+    post:
+      summary: Register 
+      description: |
+        - Employee registration
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  example: rutvik
+                lastName:
+                  type: string
+                  example: makvana
+                email:
+                  type: string
+                  example: rutvik@mailinator.com
+                password:
+                  type: string
+                  example: abcd@123
+                confirmPassword:
+                  type: string
+                  example: abcd@123
+                joiningDate:
+                  type: string
+                  example: "25 july 2023"
+                jobTitle:
+                  type: string
+                  example: "Nodejs Developer"
+                department:
+                  type: string
+                  example: "it"  
+                
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - confirmPassword
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /auth/login:
+    post:
+      summary: Login parents
+      description: |
+        - login.
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: rutvik@mailinator.com
+                password:
+                  type: string
+                  example: abcd@123
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /auth/logout:
+    post:
+      summary: Logout 
+      description: |
+        - logout from this device.
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /auth/forgot-password:
+    post:
+      summary: Forgot password
+      description: |
+        - forgot password
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: rutvik@mailinator.com
+              required:
+                - email
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /auth/profile:
+    get:
+      summary: get employee profile
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /auth/change-password:
+    post:
+      summary: Chnage Password
+      description: |
+        - Employee can your change password
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []  
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                oldPassword:
+                  type: string
+                  example: abcd@111
+                newPassword:
+                  type: string
+                  example: abcd@222
+                confirmPassword:
+                  type: string
+                  example: abcd@222    
+                  
+              required:
+                - oldPassword
+                - newPassword
+                - confirmPassword
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "409":
+          $ref: "#/components/responses/ConflictError"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"               
+
+  /stripe/new-card:
+    post:
+      description: |
+        - isDefault :- true (Select card to payment)
+        - isDefault :- false (Not select card to payment)
+      summary: Card create
+      security:
+        - bearerAuth: []
+      tags:
+        - Stripe Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: John deo
+                cardNumber:
+                  type: integer
+                  example: 4242424242424242
+                cvc:
+                  type: integer
+                  example: 578
+                expMonth:
+                  type: integer
+                  example: 12
+                expYear:
+                  type: integer
+                  example: 25
+                isDefault:
+                  type: boolean
+                  example: false
+              required:
+                - fullName
+                - cardNumber
+                - cvc
+                - expMonth
+                - expYear
+                - isDefault
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /stripe/card-listing:
+    get:
+      summary: Cards listing
+      tags:
+        - Stripe Payment
+      security:
+        - bearerAuth: []
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /stripe/delete-card/{cardId}:
+    delete:
+      summary: Delete card
+      security:
+        - bearerAuth: []
+      tags:
+        - Stripe Payment
+
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: string
+            example: 64649805079ebe243d241c6d
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /stripe/setDefault-card/{cardId}:
+    post:
+      summary: Set default card
+      security:
+        - bearerAuth: []
+      tags:
+        - Stripe Payment
+
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: string
+            example: 64649805079ebe243d241c6d
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /stripe/cardEdit/{cardId}:
+    post:
+      summary: Edit card details
+      security:
+        - bearerAuth: []
+      tags:
+        - Stripe Payment
+
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: string
+            example: 64649805079ebe243d241c6d
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  example: John deo
+                cardNumber:
+                  type: integer
+                  example: 4242424242424242
+                cvc:
+                  type: integer
+                  example: 578
+                expMonth:
+                  type: integer
+                  example: 12
+                expYear:
+                  type: integer
+                  example: 25
+              required:
+                - fullName
+                - cardNumber
+                - cvc
+                - expMonth
+                - expYear
+
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "400":
+          $ref: "#/components/responses/BadRequestError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+          
+                          
+                         
+
+
